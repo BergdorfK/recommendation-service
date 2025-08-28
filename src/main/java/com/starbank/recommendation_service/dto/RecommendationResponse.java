@@ -7,8 +7,12 @@ public class RecommendationResponse {
     private String userId;
     private List<RecommendationDto> recommendations = new ArrayList<>();
 
-    public String getUserId() {
-        return userId;
+    public RecommendationResponse() {
+    }
+
+    public RecommendationResponse(String userId, List<RecommendationDto> recommendations) {
+        this.userId = userId;
+        this.recommendations = recommendations;
     }
 
     public List<RecommendationDto> getRecommendations() {

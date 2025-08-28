@@ -1,6 +1,7 @@
 package com.starbank.recommendation_service.service;
 
 import com.starbank.recommendation_service.dto.RecommendationDto;
+import com.starbank.recommendation_service.dto.RecommendationResponse;
 import com.starbank.recommendation_service.model.UserFinancialData;
 import com.starbank.recommendation_service.repository.UserRepository;
 import com.starbank.recommendation_service.rules.RecommendationRuleSet;
@@ -22,13 +23,15 @@ public class RecommendationService {
         this.userRepository = userRepository;
     }
 
-    public List<RecommendationDto> getRecommendations(UUID userId) {
+    public RecommendationResponse getRecommendationResponse(UUID userId) {
         UserFinancialData financialData = userRepository.getUserFinancialData(userId);
 
-        return rules.stream()
+        List<RecommendationDto> recommendations = rules.stream()
                 .map(rule -> rule.apply(financialData))
-                .filter(Optional::isPresent)
-                .map(Optional::get)
+                .flatMap(Optional::stream)
                 .collect(Collectors.toList());
+
+        return new RecommendationResponse(userId.toString(), recommendations);
     }
+
 }
