@@ -1,4 +1,4 @@
-package com.starbank.recommendation_service.controller;
+package com.starbank.recommendation_service.controller.recommendation;
 
 import com.starbank.recommendation_service.dto.RecommendationResponse;
 import com.starbank.recommendation_service.service.RecommendationService;
