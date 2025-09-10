@@ -39,6 +39,7 @@ public class DynamicRule {
 
     public DynamicRule() {}
 
+    // Getters and setters
     public UUID getId() { return id; }
     public void setId(UUID id) { this.id = id; }
 
@@ -66,6 +67,7 @@ public class DynamicRule {
         if (!(o instanceof DynamicRule that)) return false;
         return id != null && id.equals(that.id);
     }
+
     @Override
     public int hashCode() { return Objects.hashCode(id); }
 
@@ -76,6 +78,9 @@ public class DynamicRule {
                 ", productId=" + productId +
                 ", productCode='" + productCode + '\'' +
                 ", productName='" + productName + '\'' +
+                ", productText='" + productText + '\'' +
+                ", ruleJson='" + ruleJson + '\'' +
+                ", createdAt=" + createdAt +
                 '}';
     }
 }
