@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="
+     http://www.liquibase.org/xml/ns/dbchangelog
+     http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.8.xsd">
+
+    <changeSet id="2-add-product-code" author="you">
+        <addColumn tableName="dynamic_rule">
+            <column name="product_code" type="varchar(64)"/>
+        </addColumn>
+        <addNotNullConstraint tableName="dynamic_rule" columnName="product_name" columnDataType="varchar(255)"/>
+        <addUniqueConstraint tableName="dynamic_rule" columnNames="product_code" constraintName="uq_dynamic_rule_product_code"/>
+    </changeSet>
+
+    <changeSet id="3-defaults" author="nik">
+        <preConditions onFail="CONTINUE">
+            <dbms type="postgresql"/>
+        </preConditions>
+        <addDefaultValue tableName="dynamic_rule"
+                         columnName="id"
+                         defaultValueComputed="gen_random_uuid()"/>
+        <addDefaultValue tableName="dynamic_rule"
+                         columnName="created_at"
+                         defaultValueComputed="now()"/>
+        <rollback>
+            <dropDefaultValue tableName="dynamic_rule" columnName="id"/>
+            <dropDefaultValue tableName="dynamic_rule" columnName="created_at"/>
+        </rollback>
+    </changeSet>
+
+</databaseChangeLog>

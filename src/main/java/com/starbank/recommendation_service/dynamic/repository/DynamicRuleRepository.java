@@ -7,5 +7,5 @@ import java.util.Optional;
 import java.util.UUID;
 
 public interface DynamicRuleRepository extends JpaRepository<DynamicRule, UUID> {
-    Optional<DynamicRule> findByProductId(UUID productId);
+    Optional<DynamicRule> findByProductCode(String productId);
 }
