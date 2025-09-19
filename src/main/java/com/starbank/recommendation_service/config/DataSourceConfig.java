@@ -54,7 +54,9 @@ public class DataSourceConfig {
     }
 
     @Bean(name = "rulesEntityManagerFactory")
-    public LocalContainerEntityManagerFactoryBean rulesEmf(@Qualifier("rulesDataSource") DataSource ds) {
+    @DependsOn("rulesLiquibase")
+    public LocalContainerEntityManagerFactoryBean rulesEmf(
+            @Qualifier("rulesDataSource") DataSource ds) {
         var em = new LocalContainerEntityManagerFactoryBean();
         em.setDataSource(ds);
         em.setPackagesToScan("com.starbank.recommendation_service.dynamic.model");
@@ -67,6 +69,7 @@ public class DataSourceConfig {
         ));
         return em;
     }
+
 
     @Bean(name = "rulesTransactionManager")
     public PlatformTransactionManager rulesTx(@Qualifier("rulesEntityManagerFactory") EntityManagerFactory emf) {
