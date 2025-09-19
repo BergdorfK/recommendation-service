@@ -1,12 +1,18 @@
 package com.starbank.recommendation_service.dto;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 import java.util.List;
 
 public class DynamicRuleRequest {
 
+    @JsonProperty("product_name")
     private String product_name;
+    @JsonProperty("product_id")
     private String product_id;
+    @JsonProperty("product_text")
     private String product_text;
+    @JsonProperty("rule")
     private List<RuleCondition> rule;
 
     public DynamicRuleRequest() {}
@@ -28,8 +34,11 @@ public class DynamicRuleRequest {
     public void setRule(List<RuleCondition> rule) { this.rule = rule; }
 
     public static class RuleCondition {
-        private String query;          // USER_OF | ACTIVE_USER_OF | TRANSACTION_SUM_COMPARE | TRANSACTION_SUM_COMPARE_DEPOSIT_WITHDRAW
+        @JsonProperty("query")
+        private String query;
+        @JsonProperty("arguments")
         private List<String> arguments;
+        @JsonProperty("negate")
         private boolean negate;
 
         public RuleCondition() {}
