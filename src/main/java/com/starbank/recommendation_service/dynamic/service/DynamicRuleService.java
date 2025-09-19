@@ -4,11 +4,11 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.starbank.recommendation_service.dto.DynamicRuleRequest;
 import com.starbank.recommendation_service.dto.RecommendationDto;
+import com.starbank.recommendation_service.dynamic.eval.RuleEvaluator;
 import com.starbank.recommendation_service.dynamic.model.DynamicRule;
 import com.starbank.recommendation_service.dynamic.repository.DynamicRuleRepository;
 import com.starbank.recommendation_service.model.ProductType;
 import com.starbank.recommendation_service.model.UserFinancialData;
-import com.starbank.recommendation_service.repository.UserRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -19,12 +19,13 @@ import java.util.stream.Collectors;
 public class DynamicRuleService {
 
     private final DynamicRuleRepository repository;
-    private final UserRepository knowledgeRepo; // H2 агрегаты
     private final ObjectMapper mapper = new ObjectMapper();
+    private final RuleEvaluator evaluator;
 
-    public DynamicRuleService(DynamicRuleRepository repository, UserRepository knowledgeRepo) {
+    public DynamicRuleService(DynamicRuleRepository repository,
+                              com.starbank.recommendation_service.dynamic.eval.RuleEvaluator evaluator) {
         this.repository = repository;
-        this.knowledgeRepo = knowledgeRepo;
+        this.evaluator = evaluator;
     }
 
     @Transactional
@@ -65,12 +66,11 @@ public class DynamicRuleService {
     }
 
     public List<RecommendationDto> evaluateDynamic(UUID userId) {
-        UserFinancialData data = knowledgeRepo.getUserFinancialData(userId);
-
-        List<RecommendationDto> out = new ArrayList<>();
+        List<com.starbank.recommendation_service.dto.RecommendationDto> out = new ArrayList<>();
         for (DynamicRule dr : repository.findAll()) {
-            if (evaluate(dr, data)) {
-                out.add(new RecommendationDto(
+            var conditions = com.starbank.recommendation_service.dynamic.mapper.DynamicRuleMapper.read(dr.getRuleJson());
+            if (evaluator.matches(userId, conditions)) {
+                out.add(new com.starbank.recommendation_service.dto.RecommendationDto(
                         dr.getProductId().toString(),
                         dr.getProductName(),
                         dr.getProductText()

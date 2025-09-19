@@ -1,6 +1,7 @@
 package com.starbank.recommendation_service.controller.dynamic;
 
 import com.starbank.recommendation_service.dto.DynamicRuleRequest;
+import com.starbank.recommendation_service.dynamic.mapper.DynamicRuleMapper;
 import com.starbank.recommendation_service.dynamic.model.DynamicRule;
 import com.starbank.recommendation_service.dynamic.service.DynamicRuleService;
 import org.springframework.http.*;
@@ -44,11 +45,12 @@ public class DynamicRuleController {
             item.put("product_name", r.getProductName());
             item.put("product_id", r.getProductId());
             item.put("product_text", r.getProductText());
-            item.put("rule", r.getRuleJson()); // можно распарсить в массив, если нужно
+            item.put("rule", DynamicRuleMapper.read(r.getRuleJson()));
             data.add(item);
         }
         return ResponseEntity.ok(Map.of("data", data));
     }
+
 
     @DeleteMapping("/{productId}")
     public ResponseEntity<Void> deleteByProduct(@PathVariable UUID productId) {

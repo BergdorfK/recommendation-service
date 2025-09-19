@@ -25,7 +25,7 @@ public class DynamicRule {
     @Column(name = "product_text", nullable = false)
     private String productText;
 
-    @Column(name = "rule_json", nullable = false, columnDefinition = "text")
+    @Column(name = "rule_json", nullable = false, columnDefinition = "jsonb")
     private String ruleJson;
 
     @Column(name = "created_at")
