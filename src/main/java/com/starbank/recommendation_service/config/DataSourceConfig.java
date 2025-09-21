@@ -80,7 +80,7 @@ public class DataSourceConfig {
     public SpringLiquibase rulesLiquibase(@Qualifier("rulesDataSource") DataSource dataSource) {
         SpringLiquibase lb = new SpringLiquibase();
         lb.setDataSource(dataSource);
-        lb.setChangeLog("classpath:db/changelog/db.changelog-master.xml");
+        lb.setChangeLog("classpath:db/changelog/db.changelog-master.sql");
         lb.setDefaultSchema("public");
         return lb;
     }
