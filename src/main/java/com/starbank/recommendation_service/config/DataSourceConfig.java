@@ -1,7 +1,7 @@
 package com.starbank.recommendation_service.config;
 
-import com.zaxxer.hikari.HikariDataSource;
 import jakarta.persistence.EntityManagerFactory;
+import liquibase.integration.spring.SpringLiquibase;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.autoconfigure.jdbc.DataSourceProperties;
 import org.springframework.boot.context.properties.ConfigurationProperties;
@@ -23,18 +23,17 @@ import java.util.Map;
 )
 public class DataSourceConfig {
 
-    // === H2: дефолтный (@Primary) ===
     @Primary
-    @Bean
+    @Bean(name = "defaultDsProps")
     @ConfigurationProperties("spring.datasource")
-    public DataSourceProperties h2DataSourceProperties() {
+    public DataSourceProperties defaultDsProps() {
         return new DataSourceProperties();
     }
 
     @Primary
     @Bean(name = "dataSource")
-    public DataSource h2DataSource(@Qualifier("h2DataSourceProperties") DataSourceProperties props) {
-        return props.initializeDataSourceBuilder().type(HikariDataSource.class).build();
+    public DataSource defaultDataSource(@Qualifier("defaultDsProps") DataSourceProperties properties) {
+        return properties.initializeDataSourceBuilder().build();
     }
 
     @Primary
@@ -43,37 +42,46 @@ public class DataSourceConfig {
         return new JdbcTemplate(h2);
     }
 
-    // === Postgres: rules ===
-    @Bean
+    @Bean(name = "rulesDsProps")
     @ConfigurationProperties("rules.datasource")
-    public DataSourceProperties rulesDataSourceProperties() {
+    public DataSourceProperties rulesDsProps() {
         return new DataSourceProperties();
     }
 
     @Bean(name = "rulesDataSource")
-    public DataSource rulesDataSource(@Qualifier("rulesDataSourceProperties") DataSourceProperties props) {
-        return props.initializeDataSourceBuilder().type(HikariDataSource.class).build();
+    public DataSource rulesDataSource(@Qualifier("rulesDsProps") DataSourceProperties props) {
+        return props.initializeDataSourceBuilder().build();
     }
 
     @Bean(name = "rulesEntityManagerFactory")
+    @DependsOn("rulesLiquibase")
     public LocalContainerEntityManagerFactoryBean rulesEmf(
             @Qualifier("rulesDataSource") DataSource ds) {
         var em = new LocalContainerEntityManagerFactoryBean();
         em.setDataSource(ds);
         em.setPackagesToScan("com.starbank.recommendation_service.dynamic.model");
         em.setPersistenceUnitName("rules");
-        em.setJpaVendorAdapter(new HibernateJpaVendorAdapter());
+
+        var vendor = new HibernateJpaVendorAdapter();
+        em.setJpaVendorAdapter(vendor);
         em.setJpaPropertyMap(Map.of(
-                // можно убрать, но не мешает
-                "hibernate.dialect", "org.hibernate.dialect.PostgreSQLDialect",
                 "hibernate.hbm2ddl.auto", "none"
         ));
         return em;
     }
 
+
     @Bean(name = "rulesTransactionManager")
-    public PlatformTransactionManager rulesTx(
-            @Qualifier("rulesEntityManagerFactory") EntityManagerFactory emf) {
+    public PlatformTransactionManager rulesTx(@Qualifier("rulesEntityManagerFactory") EntityManagerFactory emf) {
         return new JpaTransactionManager(emf);
+    }
+
+    @Bean(name = "rulesLiquibase")
+    public SpringLiquibase rulesLiquibase(@Qualifier("rulesDataSource") DataSource dataSource) {
+        SpringLiquibase lb = new SpringLiquibase();
+        lb.setDataSource(dataSource);
+        lb.setChangeLog("classpath:db/changelog/db.changelog-master.sql");
+        lb.setDefaultSchema("public");
+        return lb;
     }
 }
