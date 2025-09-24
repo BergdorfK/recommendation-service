@@ -1,15 +1,13 @@
 package com.starbank.recommendation_service.controller;
 
+import com.starbank.recommendation_service.dto.RecommendationDto;
 import com.starbank.recommendation_service.dto.RecommendationResponse;
-import com.starbank.recommendation_service.service.RecommendationService;
 import com.starbank.recommendation_service.dynamic.service.DynamicRuleService;
+import com.starbank.recommendation_service.service.RecommendationService;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
-import java.util.UUID;
+import java.util.*;
 
 @RestController
 @RequestMapping("/recommendation")
@@ -26,13 +24,14 @@ public class RecommendationController {
 
     @GetMapping("/{userId}")
     public ResponseEntity<RecommendationResponse> getRecommendations(@PathVariable UUID userId) {
-        // Получаем рекомендации от фиксированных правил
         var response = recommendationService.getRecommendationResponse(userId);
+        var dynamic = dynamicRuleService.evaluateDynamic(userId);
 
-        // Добавляем динамические рекомендации
-        var dynamicRecommendations = dynamicRuleService.evaluateDynamic(userId);
-        response.getRecommendations().addAll(dynamicRecommendations);
+        Map<String, RecommendationDto> merged = new LinkedHashMap<>();
+        for (var r : response.getRecommendations()) merged.put(r.getId(), r);
+        for (var r : dynamic) merged.putIfAbsent(r.getId(), r);
 
+        response.setRecommendations(new ArrayList<>(merged.values()));
         return ResponseEntity.ok(response);
     }
 }
