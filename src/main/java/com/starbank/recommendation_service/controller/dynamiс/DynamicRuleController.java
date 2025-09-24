@@ -1,4 +1,4 @@
-package com.starbank.recommendation_service.controller.dynamic;
+package com.starbank.recommendation_service.controller.dynamiс;
 
 import com.starbank.recommendation_service.dto.DynamicRuleRequest;
 import com.starbank.recommendation_service.dynamic.mapper.DynamicRuleMapper;
