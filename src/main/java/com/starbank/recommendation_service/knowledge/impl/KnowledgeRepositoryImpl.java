@@ -3,6 +3,7 @@ package com.starbank.recommendation_service.knowledge.impl;
 import com.github.benmanes.caffeine.cache.Cache;
 import com.github.benmanes.caffeine.cache.Caffeine;
 import com.starbank.recommendation_service.knowledge.KnowledgeRepository;
+import com.starbank.recommendation_service.management.CacheClearable;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
 
@@ -12,7 +13,7 @@ import java.util.Objects;
 import java.util.UUID;
 
 @Repository("knowledgeJdbc")
-public class KnowledgeRepositoryImpl implements KnowledgeRepository {
+public class KnowledgeRepositoryImpl implements KnowledgeRepository, CacheClearable {
 
     private final JdbcTemplate jdbc;
 
@@ -90,5 +91,17 @@ public class KnowledgeRepositoryImpl implements KnowledgeRepository {
     }
     private record UserTypeKindKey(UUID userId, String productType, String txnKind) {
         UserTypeKindKey { Objects.requireNonNull(userId); Objects.requireNonNull(productType); Objects.requireNonNull(txnKind); }
+    }
+
+    @Override
+    public void clearCaches() {
+        userOfCache.invalidateAll();
+        activeUserCache.invalidateAll();
+        sumCache.invalidateAll();
+    }
+
+    @Override
+    public String name() {
+        return "knowledgeJdbc";
     }
 }

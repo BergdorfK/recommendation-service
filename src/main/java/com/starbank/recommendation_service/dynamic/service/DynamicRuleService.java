@@ -21,11 +21,13 @@ public class DynamicRuleService {
     private final DynamicRuleRepository repository;
     private final ObjectMapper mapper = new ObjectMapper();
     private final RuleEvaluator evaluator;
+    private final RuleStatsService stats;
 
-    public DynamicRuleService(DynamicRuleRepository repository,
-                              com.starbank.recommendation_service.dynamic.eval.RuleEvaluator evaluator) {
+    public DynamicRuleService(DynamicRuleRepository repository, RuleEvaluator evaluator,
+                              RuleStatsService stats) {
         this.repository = repository;
         this.evaluator = evaluator;
+        this.stats = stats;
     }
 
     @Transactional
@@ -70,6 +72,7 @@ public class DynamicRuleService {
         for (DynamicRule dr : repository.findAll()) {
             var conditions = com.starbank.recommendation_service.dynamic.mapper.DynamicRuleMapper.read(dr.getRuleJson());
             if (evaluator.matches(userId, conditions)) {
+                stats.increment(dr.getId());
                 out.add(new com.starbank.recommendation_service.dto.RecommendationDto(
                         dr.getProductId().toString(),
                         dr.getProductName(),

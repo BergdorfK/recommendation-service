@@ -2,6 +2,7 @@ package com.starbank.recommendation_service.knowledge;
 
 import com.github.benmanes.caffeine.cache.Cache;
 import com.github.benmanes.caffeine.cache.Caffeine;
+import com.starbank.recommendation_service.management.CacheClearable;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Primary;
 import org.springframework.stereotype.Service;
@@ -13,7 +14,7 @@ import java.util.UUID;
 
 @Primary
 @Service
-public class KnowledgeRepositoryCached implements KnowledgeRepository {
+public class KnowledgeRepositoryCached implements KnowledgeRepository, CacheClearable {
 
     private final KnowledgeRepository delegate;
 
@@ -59,5 +60,17 @@ public class KnowledgeRepositoryCached implements KnowledgeRepository {
     }
     private record UserTypeKindKey(UUID userId, String productType, String txnKind) {
         UserTypeKindKey { Objects.requireNonNull(userId); Objects.requireNonNull(productType); Objects.requireNonNull(txnKind); }
+    }
+
+    @Override
+    public void clearCaches() {
+        userOfCache.invalidateAll();
+        activeUserCache.invalidateAll();
+        sumCache.invalidateAll();
+    }
+
+    @Override
+    public String name() {
+        return "knowledgeCached";
     }
 }
