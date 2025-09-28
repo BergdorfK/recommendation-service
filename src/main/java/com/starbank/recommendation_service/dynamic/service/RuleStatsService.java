@@ -17,12 +17,12 @@ public class RuleStatsService {
         this.repo = repo;
     }
 
-    @Transactional
+    @Transactional(transactionManager = "rulesTransactionManager")
     public void increment(UUID ruleId) {
         repo.increment(ruleId);
     }
 
-    @Transactional(readOnly = true)
+    @Transactional(readOnly = true, transactionManager = "rulesTransactionManager")
     public List<RuleStatsView> getAll() {
         return repo.findAllWithRule();
     }

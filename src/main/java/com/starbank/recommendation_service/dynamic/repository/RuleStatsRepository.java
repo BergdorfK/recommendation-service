@@ -21,13 +21,13 @@ public interface RuleStatsRepository extends JpaRepository<DynamicRuleStat, UUID
     void increment(@Param("ruleId") UUID ruleId);
 
     @Query(value = """
-        SELECT s.rule_id AS ruleId,
-               s.count   AS count,
-               r.product_code AS productCode,
-               r.product_name AS productName
-          FROM dynamic_rule_stats s
-          JOIN dynamic_rule r ON r.id = s.rule_id
-         ORDER BY s.count DESC, r.product_name
-        """, nativeQuery = true)
+    SELECT r.id                 AS ruleId,
+           COALESCE(s.count, 0) AS count,
+           r.product_code       AS productCode,
+           r.product_name       AS productName
+      FROM dynamic_rule r
+      LEFT JOIN dynamic_rule_stats s ON s.rule_id = r.id
+     ORDER BY COALESCE(s.count, 0) DESC, r.product_name
+    """, nativeQuery = true)
     List<RuleStatsView> findAllWithRule();
 }

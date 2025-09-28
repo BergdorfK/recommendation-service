@@ -5,6 +5,7 @@ import com.starbank.recommendation_service.dynamic.service.RuleStatsService;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/rule")
@@ -17,7 +18,14 @@ public class RuleStatsController {
     }
 
     @GetMapping("/stats")
-    public List<RuleStatsView> stats() {
-        return service.getAll();
+    public Map<String, Object> stats() {
+        var list = service.getAll();
+        var items = list.stream()
+                .map(v -> Map.of(
+                        "rule_id", v.getRuleId(),
+                        "count",   v.getCount()
+                ))
+                .toList();
+        return Map.of("stats", items);
     }
 }
