@@ -3,6 +3,7 @@ package com.starbank.recommendation_service.knowledge.impl;
 import com.github.benmanes.caffeine.cache.Cache;
 import com.github.benmanes.caffeine.cache.Caffeine;
 import com.starbank.recommendation_service.knowledge.KnowledgeRepository;
+import com.starbank.recommendation_service.management.CacheClearable;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
 
@@ -12,7 +13,7 @@ import java.util.Objects;
 import java.util.UUID;
 
 @Repository("knowledgeJdbc")
-public class KnowledgeRepositoryImpl implements KnowledgeRepository {
+public class KnowledgeRepositoryImpl implements KnowledgeRepository, CacheClearable {
 
     private final JdbcTemplate jdbc;
 
@@ -29,26 +30,25 @@ public class KnowledgeRepositoryImpl implements KnowledgeRepository {
         this.jdbc = jdbc;
     }
 
-    // === SQL ===
     private static final String COUNT_BY_PRODUCT_TYPE = """
         SELECT COUNT(*) 
-        FROM TRANSACTIONS t
-        JOIN PRODUCTS p ON p.ID = t.PRODUCT_ID
-        WHERE t.USER_ID = ? AND p."TYPE" = ?
+          FROM TRANSACTIONS t
+          JOIN PRODUCTS p ON p.ID = t.PRODUCT_ID
+         WHERE t.USER_ID = ? AND p."TYPE" = ?
         """;
 
     private static final String SUM_DEPOSIT = """
         SELECT COALESCE(SUM(CASE WHEN t.AMOUNT > 0 THEN t.AMOUNT ELSE 0 END), 0)
-        FROM TRANSACTIONS t
-        JOIN PRODUCTS p ON p.ID = t.PRODUCT_ID
-        WHERE t.USER_ID = ? AND p."TYPE" = ?
+          FROM TRANSACTIONS t
+          JOIN PRODUCTS p ON p.ID = t.PRODUCT_ID
+         WHERE t.USER_ID = ? AND p."TYPE" = ?
         """;
 
     private static final String SUM_WITHDRAW = """
         SELECT COALESCE(SUM(CASE WHEN t.AMOUNT < 0 THEN -t.AMOUNT ELSE 0 END), 0)
-        FROM TRANSACTIONS t
-        JOIN PRODUCTS p ON p.ID = t.PRODUCT_ID
-        WHERE t.USER_ID = ? AND p."TYPE" = ?
+          FROM TRANSACTIONS t
+          JOIN PRODUCTS p ON p.ID = t.PRODUCT_ID
+         WHERE t.USER_ID = ? AND p."TYPE" = ?
         """;
 
     @Override
@@ -84,7 +84,14 @@ public class KnowledgeRepositoryImpl implements KnowledgeRepository {
     @Override public BigDecimal depositSum(UUID u, String t)  { return sumByProductAndTxnKind(u, t, "DEPOSIT"); }
     @Override public BigDecimal withdrawSum(UUID u, String t) { return sumByProductAndTxnKind(u, t, "WITHDRAW"); }
 
-    // === cache keys ===
+    // CacheClearable
+    @Override public void clearCaches() {
+        userOfCache.invalidateAll();
+        activeUserCache.invalidateAll();
+        sumCache.invalidateAll();
+    }
+    @Override public String name() { return "KnowledgeRepositoryImpl"; }
+
     private record UserTypeKey(UUID userId, String productType) {
         UserTypeKey { Objects.requireNonNull(userId); Objects.requireNonNull(productType); }
     }
