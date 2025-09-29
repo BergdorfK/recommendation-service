@@ -11,7 +11,7 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.orm.jpa.*;
 import org.springframework.orm.jpa.vendor.HibernateJpaVendorAdapter;
 import org.springframework.transaction.PlatformTransactionManager;
-
+import org.springframework.context.annotation.Primary;
 import javax.sql.DataSource;
 import java.util.Map;
 
@@ -49,12 +49,14 @@ public class DataSourceConfig {
     }
 
     @Bean(name = "rulesDataSource")
+    @Primary
     public DataSource rulesDataSource(@Qualifier("rulesDsProps") DataSourceProperties props) {
         return props.initializeDataSourceBuilder().build();
     }
 
     @Bean(name = "rulesEntityManagerFactory")
     @DependsOn("rulesLiquibase")
+    @Primary
     public LocalContainerEntityManagerFactoryBean rulesEmf(
             @Qualifier("rulesDataSource") DataSource ds) {
         var em = new LocalContainerEntityManagerFactoryBean();
@@ -80,7 +82,7 @@ public class DataSourceConfig {
     public SpringLiquibase rulesLiquibase(@Qualifier("rulesDataSource") DataSource dataSource) {
         SpringLiquibase lb = new SpringLiquibase();
         lb.setDataSource(dataSource);
-        lb.setChangeLog("classpath:db/changelog/db.changelog-master.sql");
+        lb.setChangeLog("classpath:db/changelog/changelog-master.xml");
         lb.setDefaultSchema("public");
         return lb;
     }
