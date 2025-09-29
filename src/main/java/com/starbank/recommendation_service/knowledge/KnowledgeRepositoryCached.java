@@ -2,6 +2,7 @@ package com.starbank.recommendation_service.knowledge;
 
 import com.github.benmanes.caffeine.cache.Cache;
 import com.github.benmanes.caffeine.cache.Caffeine;
+import com.starbank.recommendation_service.management.CacheClearable;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Primary;
 import org.springframework.stereotype.Service;
@@ -13,7 +14,7 @@ import java.util.UUID;
 
 @Primary
 @Service
-public class KnowledgeRepositoryCached implements KnowledgeRepository {
+public class KnowledgeRepositoryCached implements KnowledgeRepository, CacheClearable {
 
     private final KnowledgeRepository delegate;
 
@@ -51,15 +52,42 @@ public class KnowledgeRepositoryCached implements KnowledgeRepository {
         );
     }
 
-    @Override public BigDecimal depositSum(UUID u, String t)  { return sumByProductAndTxnKind(u, t, "DEPOSIT"); }
     @Override
-    public BigDecimal withdrawSum(UUID u, String t) { return sumByProductAndTxnKind(u, t, "WITHDRAW"); }
+    public BigDecimal depositSum(UUID u, String t) {
+        return sumByProductAndTxnKind(u, t, "DEPOSIT");
+    }
 
-    public record UserTypeKey(UUID userId, String productType) {
-        public UserTypeKey { Objects.requireNonNull(userId); Objects.requireNonNull(productType); }
+    @Override
+    public BigDecimal withdrawSum(UUID u, String t) {
+        return sumByProductAndTxnKind(u, t, "WITHDRAW");
     }
-    public record UserTypeKindKey(UUID userId, String productType, String txnKind) {
-        public UserTypeKindKey { Objects.requireNonNull(userId); Objects.requireNonNull(productType); Objects.requireNonNull(txnKind); }
+
+    // === CacheClearable ===
+    @Override
+    public void clearCaches() {
+        userOfCache.invalidateAll();
+        activeUserCache.invalidateAll();
+        sumCache.invalidateAll();
     }
-    public void clear() {}
+
+    @Override
+    public String name() {
+        return "KnowledgeRepositoryCached";
+    }
+
+    // === cache keys ===
+    private record UserTypeKey(UUID userId, String productType) {
+        UserTypeKey {
+            Objects.requireNonNull(userId);
+            Objects.requireNonNull(productType);
+        }
+    }
+
+    private record UserTypeKindKey(UUID userId, String productType, String txnKind) {
+        UserTypeKindKey {
+            Objects.requireNonNull(userId);
+            Objects.requireNonNull(productType);
+            Objects.requireNonNull(txnKind);
+        }
+    }
 }
