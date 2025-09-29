@@ -1,7 +1,6 @@
 package com.starbank.recommendation_service.dynamic.model;
 
 import jakarta.persistence.*;
-import java.util.UUID;
 
 @Entity
 @Table(name = "dynamic_rule_stats")
@@ -9,19 +8,37 @@ public class DynamicRuleStat {
 
     @Id
     @Column(name = "rule_id", nullable = false)
-    private UUID ruleId;
+    private String ruleId; // Используем String, так как ID правила может быть UUID
 
     @Column(name = "count", nullable = false)
-    private long count;
+    private Long count = 0L; // Инициализируем 0
 
-    protected DynamicRuleStat() {}
+    // Конструкторы
+    public DynamicRuleStat() {}
 
-    public DynamicRuleStat(UUID ruleId, long count) {
+    public DynamicRuleStat(String ruleId) {
         this.ruleId = ruleId;
+    }
+
+    // Геттеры и сеттеры
+    public String getRuleId() {
+        return ruleId;
+    }
+
+    public void setRuleId(String ruleId) {
+        this.ruleId = ruleId;
+    }
+
+    public Long getCount() {
+        return count;
+    }
+
+    public void setCount(Long count) {
         this.count = count;
     }
 
-    public UUID getRuleId() { return ruleId; }
-    public long getCount() { return count; }
-    public void setCount(long count) { this.count = count; }
+    // Метод для инкремента
+    public void increment() {
+        this.count++;
+    }
 }

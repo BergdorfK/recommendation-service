@@ -1,5 +1,6 @@
 package com.starbank.recommendation_service.dynamic.service;
 
+import com.starbank.recommendation_service.dynamic.model.DynamicRuleStat;
 import com.starbank.recommendation_service.dynamic.repository.RuleStatsRepository;
 import com.starbank.recommendation_service.dynamic.repository.RuleStatsView;
 import org.springframework.stereotype.Service;
@@ -19,11 +20,17 @@ public class RuleStatsService {
 
     @Transactional
     public void increment(UUID ruleId) {
-        repo.increment(ruleId);
+        // Используем String ID для статистики
+        repo.increment(ruleId.toString());
     }
 
     @Transactional(readOnly = true)
-    public List<RuleStatsView> getAll() {
+    public List<RuleStatsView> getAll() { // Предполагаем, что RuleStatsView уже определен
         return repo.findAllWithRule();
+    }
+
+    @Transactional
+    public void deleteByRuleId(UUID ruleId) {
+        repo.deleteById(ruleId.toString());
     }
 }

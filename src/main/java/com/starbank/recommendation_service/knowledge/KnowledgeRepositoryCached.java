@@ -52,12 +52,14 @@ public class KnowledgeRepositoryCached implements KnowledgeRepository {
     }
 
     @Override public BigDecimal depositSum(UUID u, String t)  { return sumByProductAndTxnKind(u, t, "DEPOSIT"); }
-    @Override public BigDecimal withdrawSum(UUID u, String t) { return sumByProductAndTxnKind(u, t, "WITHDRAW"); }
+    @Override
+    public BigDecimal withdrawSum(UUID u, String t) { return sumByProductAndTxnKind(u, t, "WITHDRAW"); }
 
-    private record UserTypeKey(UUID userId, String productType) {
-        UserTypeKey { Objects.requireNonNull(userId); Objects.requireNonNull(productType); }
+    public record UserTypeKey(UUID userId, String productType) {
+        public UserTypeKey { Objects.requireNonNull(userId); Objects.requireNonNull(productType); }
     }
-    private record UserTypeKindKey(UUID userId, String productType, String txnKind) {
-        UserTypeKindKey { Objects.requireNonNull(userId); Objects.requireNonNull(productType); Objects.requireNonNull(txnKind); }
+    public record UserTypeKindKey(UUID userId, String productType, String txnKind) {
+        public UserTypeKindKey { Objects.requireNonNull(userId); Objects.requireNonNull(productType); Objects.requireNonNull(txnKind); }
     }
+    public void clear() {}
 }
