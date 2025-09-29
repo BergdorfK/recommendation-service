@@ -1,44 +1,36 @@
 package com.starbank.recommendation_service.dynamic.service;
 
-import com.starbank.recommendation_service.dynamic.dto.RuleStatDto;
-import com.starbank.recommendation_service.dynamic.model.DynamicRule;
-import com.starbank.recommendation_service.dynamic.repository.DynamicRuleRepository;
+import com.starbank.recommendation_service.dynamic.model.DynamicRuleStat;
 import com.starbank.recommendation_service.dynamic.repository.RuleStatsRepository;
+import com.starbank.recommendation_service.dynamic.repository.RuleStatsView;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.*;
+import java.util.List;
+import java.util.UUID;
 
 @Service
 public class RuleStatsService {
 
     private final RuleStatsRepository repo;
-    private final DynamicRuleRepository rules;
 
-    public RuleStatsService(RuleStatsRepository repo, DynamicRuleRepository rules) {
+    public RuleStatsService(RuleStatsRepository repo) {
         this.repo = repo;
-        this.rules = rules;
     }
 
-    @Transactional(transactionManager = "rulesTransactionManager")
+    @Transactional
     public void increment(UUID ruleId) {
-        repo.increment(ruleId);
+        // Используем String ID для статистики
+        repo.increment(ruleId.toString());
     }
 
-    @Transactional(readOnly = true, transactionManager = "rulesTransactionManager")
-    public List<RuleStatDto> getAllWithZeros() {
-        Map<UUID, Long> counts = new HashMap<>();
-        for (RuleStatsRepository.ShortView v : repo.allCounts()) {
-            counts.put(v.getRuleId(), v.getCount());
-        }
-        List<RuleStatDto> out = new ArrayList<>();
-        for (DynamicRule r : rules.findAll()) {
-            long c = counts.getOrDefault(r.getId(), 0L);
-            out.add(new RuleStatDto(r.getId(), c));
-        }
-        // сортировка: по count desc, затем по UUID
-        out.sort(Comparator.<RuleStatDto>comparingLong(RuleStatDto::count).reversed()
-                .thenComparing(RuleStatDto::rule_id));
-        return out;
+    @Transactional(readOnly = true)
+    public List<RuleStatsView> getAll() { // Предполагаем, что RuleStatsView уже определен
+        return repo.findAllWithRule();
+    }
+
+    @Transactional
+    public void deleteByRuleId(UUID ruleId) {
+        repo.deleteById(ruleId.toString());
     }
 }
