@@ -1,6 +1,7 @@
 package com.starbank.recommendation_service.dynamic.service;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.starbank.recommendation_service.dto.DynamicRuleRequest;
 import com.starbank.recommendation_service.dto.RecommendationDto;
 import com.starbank.recommendation_service.dynamic.eval.RuleEvaluator;
 import com.starbank.recommendation_service.dynamic.mapper.DynamicRuleMapper;
@@ -10,6 +11,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 @Service
 public class DynamicRuleService {
@@ -17,52 +19,58 @@ public class DynamicRuleService {
     private final DynamicRuleRepository repository;
     private final ObjectMapper mapper = new ObjectMapper();
     private final RuleEvaluator evaluator;
-    private final RuleStatsService stats;
+    private final RuleStatsService statsService;
 
     public DynamicRuleService(DynamicRuleRepository repository,
                               RuleEvaluator evaluator,
-                              RuleStatsService stats) {
+                              RuleStatsService statsService) {
         this.repository = repository;
         this.evaluator = evaluator;
-        this.stats = stats;
+        this.statsService = statsService;
     }
 
-    @Transactional(transactionManager = "rulesTransactionManager")
-    public DynamicRule create(com.starbank.recommendation_service.dto.DynamicRuleRequest dto) {
+    @Transactional
+    public DynamicRule create(DynamicRuleRequest dto) {
         UUID productId = UUID.fromString(dto.getProductId());
+
         String ruleJson;
         try {
             ruleJson = mapper.writeValueAsString(dto.getRule());
         } catch (Exception e) {
             throw new IllegalArgumentException("Invalid rule JSON: " + e.getMessage(), e);
         }
+
         DynamicRule rule = new DynamicRule();
         rule.setProductId(productId);
         rule.setProductName(dto.getProductName());
         rule.setProductText(dto.getProductText());
         rule.setRuleJson(ruleJson);
+
         return repository.save(rule);
     }
 
-    @Transactional(readOnly = true, transactionManager = "rulesTransactionManager")
     public List<DynamicRule> listAll() {
         return repository.findAll()
                 .stream()
                 .sorted(Comparator.comparing(DynamicRule::getCreatedAt, Comparator.nullsLast(Comparator.naturalOrder())))
-                .toList();
+                .collect(Collectors.toList());
     }
 
-    @Transactional(transactionManager = "rulesTransactionManager")
+    @Transactional
     public boolean deleteByProductId(UUID productId) {
         return repository.findByProductId(productId)
                 .map(dr -> {
-                    repository.delete(dr); // счетчик удалится каскадом благодаря FK ON DELETE CASCADE
+                    repository.delete(dr); // FK ON DELETE CASCADE удалит и статистику
                     return true;
                 })
                 .orElse(false);
     }
 
-    @Transactional(readOnly = true, transactionManager = "rulesTransactionManager")
+    /**
+     * Оценка динамических правил:
+     * - если правило сработало — добавляем рекомендацию и инкрементируем счётчик.
+     */
+    @Transactional
     public List<RecommendationDto> evaluateDynamic(UUID userId) {
         List<RecommendationDto> out = new ArrayList<>();
         for (DynamicRule dr : repository.findAll()) {
@@ -73,8 +81,7 @@ public class DynamicRuleService {
                         dr.getProductName(),
                         dr.getProductText()
                 ));
-                // инкремент статистики
-                stats.increment(dr.getId());
+                statsService.increment(dr.getId());
             }
         }
         return out;

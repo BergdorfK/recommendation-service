@@ -1,11 +1,11 @@
-package com.starbank.recommendation_service.dynamic.api;
-
-import com.starbank.recommendation_service.dynamic.dto.RuleStatDto;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.starbank.recommendation_service.dynamic.service.RuleStatsService;
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
-import java.util.*;
+import java.util.List;
+import java.util.UUID;
 
 @RestController
 @RequestMapping("/rule")
@@ -17,9 +17,17 @@ public class RuleStatsController {
         this.service = service;
     }
 
+    record StatItem(@JsonProperty("rule_id") UUID ruleId,
+                    @JsonProperty("count") long count) {}
+
+    record StatsResponse(@JsonProperty("stats") List<StatItem> stats) {}
+
     @GetMapping("/stats")
-    public ResponseEntity<Map<String, Object>> stats() {
-        List<RuleStatDto> list = service.getAllWithZeros();
-        return ResponseEntity.ok(Map.of("stats", list));
+    public StatsResponse stats() {
+        var list = service.getAll();
+        var res = list.stream()
+                .map(v -> new StatItem(v.getRuleId(), v.getCount()))
+                .toList();
+        return new StatsResponse(res);
     }
 }
