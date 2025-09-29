@@ -25,6 +25,25 @@ public interface RuleStatsRepository extends JpaRepository<DynamicRuleStat, UUID
         long getCount();
     }
 
-    @Query(value = "SELECT rule_id AS ruleId, count AS count FROM dynamic_rule_stats", nativeQuery = true)
-    List<ShortView> allCounts();
+    // Все правила, даже если не было ни одного срабатывания (count = 0)
+    @Query(value = """
+        SELECT r.id AS ruleId,
+               COALESCE(s.count, 0) AS count
+          FROM dynamic_rule r
+          LEFT JOIN dynamic_rule_stats s ON s.rule_id = r.id
+         ORDER BY r.created_at NULLS LAST, r.product_name
+        """, nativeQuery = true)
+    List<ShortView> allCountsForAllRules();
+
+    // Оставляем для совместимости с существующим кодом/просмотром (если где-то используется)
+    @Query(value = """
+        SELECT s.rule_id AS ruleId,
+               s.count   AS count,
+               r.product_code AS productCode,
+               r.product_name AS productName
+          FROM dynamic_rule_stats s
+          JOIN dynamic_rule r ON r.id = s.rule_id
+         ORDER BY s.count DESC, r.product_name
+        """, nativeQuery = true)
+    List<RuleStatsView> findAllWithRule();
 }
