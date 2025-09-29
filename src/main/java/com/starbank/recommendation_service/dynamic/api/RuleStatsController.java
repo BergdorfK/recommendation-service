@@ -1,10 +1,7 @@
 package com.starbank.recommendation_service.dynamic.api;
 
-import com.starbank.recommendation_service.dynamic.repository.RuleStatsView;
-import com.starbank.recommendation_service.dynamic.service.RuleStatsService;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
 import java.util.Map;
 
 @RestController
