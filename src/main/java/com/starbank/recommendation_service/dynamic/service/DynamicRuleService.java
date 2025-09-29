@@ -5,7 +5,6 @@ import com.starbank.recommendation_service.dto.RecommendationDto;
 import com.starbank.recommendation_service.dynamic.eval.RuleEvaluator;
 import com.starbank.recommendation_service.dynamic.mapper.DynamicRuleMapper;
 import com.starbank.recommendation_service.dynamic.model.DynamicRule;
-
 import com.starbank.recommendation_service.dynamic.repository.DynamicRuleRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
