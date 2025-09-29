@@ -1,9 +1,14 @@
 package com.starbank.recommendation_service.dynamic.repository;
 
-// Предположим, что это record для представления данных из запроса
+import java.util.UUID;
+
+/**
+ * Проекция для выборки статистики правил.
+ * Используется в RuleStatsRepository.findAllWithRule().
+ */
 public interface RuleStatsView {
-    String getRuleId();
-    Long getCount();
+    UUID getRuleId();
+    long getCount();
     String getProductCode();
     String getProductName();
 }

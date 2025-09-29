@@ -22,8 +22,4 @@ public class UserH2Service {
     public Optional<UserH2> findByUserId(String userId) {
         return userH2Repository.findByUserId(userId);
     }
-
-    public UserH2 save(UserH2 userH2) {
-        return userH2Repository.save(userH2);
-    }
 }
