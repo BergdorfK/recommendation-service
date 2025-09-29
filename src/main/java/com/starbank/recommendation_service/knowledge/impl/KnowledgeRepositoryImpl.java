@@ -30,25 +30,26 @@ public class KnowledgeRepositoryImpl implements KnowledgeRepository, CacheCleara
         this.jdbc = jdbc;
     }
 
+    // SQL
     private static final String COUNT_BY_PRODUCT_TYPE = """
         SELECT COUNT(*) 
-          FROM TRANSACTIONS t
-          JOIN PRODUCTS p ON p.ID = t.PRODUCT_ID
-         WHERE t.USER_ID = ? AND p."TYPE" = ?
+        FROM TRANSACTIONS t
+        JOIN PRODUCTS p ON p.ID = t.PRODUCT_ID
+        WHERE t.USER_ID = ? AND p."TYPE" = ?
         """;
 
     private static final String SUM_DEPOSIT = """
         SELECT COALESCE(SUM(CASE WHEN t.AMOUNT > 0 THEN t.AMOUNT ELSE 0 END), 0)
-          FROM TRANSACTIONS t
-          JOIN PRODUCTS p ON p.ID = t.PRODUCT_ID
-         WHERE t.USER_ID = ? AND p."TYPE" = ?
+        FROM TRANSACTIONS t
+        JOIN PRODUCTS p ON p.ID = t.PRODUCT_ID
+        WHERE t.USER_ID = ? AND p."TYPE" = ?
         """;
 
     private static final String SUM_WITHDRAW = """
         SELECT COALESCE(SUM(CASE WHEN t.AMOUNT < 0 THEN -t.AMOUNT ELSE 0 END), 0)
-          FROM TRANSACTIONS t
-          JOIN PRODUCTS p ON p.ID = t.PRODUCT_ID
-         WHERE t.USER_ID = ? AND p."TYPE" = ?
+        FROM TRANSACTIONS t
+        JOIN PRODUCTS p ON p.ID = t.PRODUCT_ID
+        WHERE t.USER_ID = ? AND p."TYPE" = ?
         """;
 
     @Override
@@ -85,13 +86,17 @@ public class KnowledgeRepositoryImpl implements KnowledgeRepository, CacheCleara
     @Override public BigDecimal withdrawSum(UUID u, String t) { return sumByProductAndTxnKind(u, t, "WITHDRAW"); }
 
     // CacheClearable
-    @Override public void clearCaches() {
+    @Override
+    public void clearCaches() {
         userOfCache.invalidateAll();
         activeUserCache.invalidateAll();
         sumCache.invalidateAll();
     }
-    @Override public String name() { return "KnowledgeRepositoryImpl"; }
 
+    @Override
+    public String name() { return "KnowledgeRepositoryImpl"; }
+
+    // cache keys
     private record UserTypeKey(UUID userId, String productType) {
         UserTypeKey { Objects.requireNonNull(userId); Objects.requireNonNull(productType); }
     }
