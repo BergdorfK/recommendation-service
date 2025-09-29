@@ -23,6 +23,7 @@ import java.util.Map;
 )
 public class DataSourceConfig {
 
+    // ===== H2 (read-only) =====
     @Primary
     @Bean(name = "defaultDsProps")
     @ConfigurationProperties("spring.datasource")
@@ -42,6 +43,7 @@ public class DataSourceConfig {
         return new JdbcTemplate(h2);
     }
 
+    // ===== Postgres (rules) =====
     @Bean(name = "rulesDsProps")
     @ConfigurationProperties("rules.datasource")
     public DataSourceProperties rulesDsProps() {
@@ -53,10 +55,18 @@ public class DataSourceConfig {
         return props.initializeDataSourceBuilder().build();
     }
 
+    @Bean(name = "rulesLiquibase")
+    public SpringLiquibase rulesLiquibase(@Qualifier("rulesDataSource") DataSource dataSource) {
+        SpringLiquibase lb = new SpringLiquibase();
+        lb.setDataSource(dataSource);
+        lb.setChangeLog("classpath:db/changelog/db.changelog-master.sql");
+        lb.setDefaultSchema("public");
+        return lb;
+    }
+
     @Bean(name = "rulesEntityManagerFactory")
     @DependsOn("rulesLiquibase")
-    public LocalContainerEntityManagerFactoryBean rulesEmf(
-            @Qualifier("rulesDataSource") DataSource ds) {
+    public LocalContainerEntityManagerFactoryBean rulesEmf(@Qualifier("rulesDataSource") DataSource ds) {
         var em = new LocalContainerEntityManagerFactoryBean();
         em.setDataSource(ds);
         em.setPackagesToScan("com.starbank.recommendation_service.dynamic.model");
@@ -70,18 +80,8 @@ public class DataSourceConfig {
         return em;
     }
 
-
     @Bean(name = "rulesTransactionManager")
     public PlatformTransactionManager rulesTx(@Qualifier("rulesEntityManagerFactory") EntityManagerFactory emf) {
         return new JpaTransactionManager(emf);
-    }
-
-    @Bean(name = "rulesLiquibase")
-    public SpringLiquibase rulesLiquibase(@Qualifier("rulesDataSource") DataSource dataSource) {
-        SpringLiquibase lb = new SpringLiquibase();
-        lb.setDataSource(dataSource);
-        lb.setChangeLog("classpath:db/changelog/db.changelog-master.sql");
-        lb.setDefaultSchema("public");
-        return lb;
     }
 }
