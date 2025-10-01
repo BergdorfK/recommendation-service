@@ -17,13 +17,6 @@ public class UserRepository {
         this.jdbcTemplate = jdbcTemplate;
     }
 
-    /**
-     * Читает агрегированные финданные пользователя из H2.
-     * Ожидает таблицы:
-     *   transactions(user_id UUID, product_id UUID, amount NUMERIC, ...)
-     *   products(id UUID, type VARCHAR, ...)
-     * При необходимости поправь названия таблиц/колонок под свою схему H2.
-     */
     public UserFinancialData getUserFinancialData(UUID userId) {
         String sql = """
                 SELECT 

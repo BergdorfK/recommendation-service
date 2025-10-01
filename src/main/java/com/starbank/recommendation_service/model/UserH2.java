@@ -3,11 +3,11 @@ package com.starbank.recommendation_service.model;
 import jakarta.persistence.*;
 
 @Entity
-@Table(name = "users") // Убедитесь, что таблица в H2 называется 'users'
+@Table(name = "users")
 public class UserH2 {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY) // H2 может генерировать ID
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     @Column(name = "username", nullable = false, unique = true)
@@ -19,11 +19,9 @@ public class UserH2 {
     @Column(name = "last_name", nullable = false)
     private String lastName;
 
-    // Ссылка на ID пользователя в основной системе (из транзакций)
-    @Column(name = "user_id", nullable = false) // Используем UUID как строку или как UUID
-    private String userId; // Можно хранить как String или UUID
+    @Column(name = "user_id", nullable = false)
+    private String userId;
 
-    // Конструкторы
     public UserH2() {}
 
     public UserH2(String username, String firstName, String lastName, String userId) {
@@ -33,7 +31,6 @@ public class UserH2 {
         this.userId = userId;
     }
 
-    // Геттеры и сеттеры
     public Long getId() {
         return id;
     }

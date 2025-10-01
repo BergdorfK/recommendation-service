@@ -25,7 +25,6 @@ public interface RuleStatsRepository extends JpaRepository<DynamicRuleStat, UUID
         long getCount();
     }
 
-    // Все правила, даже если не было ни одного срабатывания (count = 0)
     @Query(value = """
         SELECT r.id AS ruleId,
                COALESCE(s.count, 0) AS count
@@ -35,7 +34,6 @@ public interface RuleStatsRepository extends JpaRepository<DynamicRuleStat, UUID
         """, nativeQuery = true)
     List<ShortView> allCountsForAllRules();
 
-    // Оставляем для совместимости с существующим кодом/просмотром (если где-то используется)
     @Query(value = """
         SELECT s.rule_id AS ruleId,
                s.count   AS count,
