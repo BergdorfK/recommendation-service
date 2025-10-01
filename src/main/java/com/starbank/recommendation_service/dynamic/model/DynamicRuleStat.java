@@ -8,10 +8,10 @@ public class DynamicRuleStat {
 
     @Id
     @Column(name = "rule_id", nullable = false)
-    private String ruleId; // Используем String, так как ID правила может быть UUID
+    private String ruleId;
 
     @Column(name = "count", nullable = false)
-    private Long count = 0L; // Инициализируем 0
+    private Long count = 0L;
 
     public DynamicRuleStat() {}
 

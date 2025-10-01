@@ -16,7 +16,7 @@ public class DynamicRule {
     @Column(name = "product_id", nullable = false, unique = true)
     private UUID productId;
 
-    @Column(name = "product_code") // опционально, не обязателен в ТЗ
+    @Column(name = "product_code")
     private String productCode;
 
     @Column(name = "product_name", nullable = false)
