@@ -26,7 +26,6 @@ public class CacheManagementController {
 
     @PostMapping("/clear-caches")
     public ResponseEntity<Map<String, Object>> clearCaches() {
-        // 1) Spring CacheManager caches
         List<String> springCacheNames = cacheManager != null
                 ? new ArrayList<>(cacheManager.getCacheNames())
                 : List.of();
@@ -41,7 +40,6 @@ public class CacheManagementController {
             }
         }
 
-        // 2) Ручные кеши (Caffeine) через CacheClearable
         List<String> manualNames = new ArrayList<>();
         for (CacheClearable c : manualClearables) {
             try {

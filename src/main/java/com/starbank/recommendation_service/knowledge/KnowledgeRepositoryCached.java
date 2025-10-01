@@ -55,7 +55,6 @@ public class KnowledgeRepositoryCached implements KnowledgeRepository, CacheClea
     @Override public BigDecimal depositSum(UUID u, String t)  { return sumByProductAndTxnKind(u, t, "DEPOSIT"); }
     @Override public BigDecimal withdrawSum(UUID u, String t) { return sumByProductAndTxnKind(u, t, "WITHDRAW"); }
 
-    // CacheClearable
     @Override
     public void clearCaches() {
         userOfCache.invalidateAll();

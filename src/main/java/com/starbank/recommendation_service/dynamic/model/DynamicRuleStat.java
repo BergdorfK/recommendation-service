@@ -13,14 +13,12 @@ public class DynamicRuleStat {
     @Column(name = "count", nullable = false)
     private Long count = 0L; // Инициализируем 0
 
-    // Конструкторы
     public DynamicRuleStat() {}
 
     public DynamicRuleStat(String ruleId) {
         this.ruleId = ruleId;
     }
 
-    // Геттеры и сеттеры
     public String getRuleId() {
         return ruleId;
     }
@@ -37,7 +35,6 @@ public class DynamicRuleStat {
         this.count = count;
     }
 
-    // Метод для инкремента
     public void increment() {
         this.count++;
     }

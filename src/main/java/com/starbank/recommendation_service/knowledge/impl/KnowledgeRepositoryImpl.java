@@ -30,7 +30,6 @@ public class KnowledgeRepositoryImpl implements KnowledgeRepository, CacheCleara
         this.jdbc = jdbc;
     }
 
-    // SQL
     private static final String COUNT_BY_PRODUCT_TYPE = """
         SELECT COUNT(*) 
         FROM TRANSACTIONS t
@@ -85,7 +84,6 @@ public class KnowledgeRepositoryImpl implements KnowledgeRepository, CacheCleara
     @Override public BigDecimal depositSum(UUID u, String t)  { return sumByProductAndTxnKind(u, t, "DEPOSIT"); }
     @Override public BigDecimal withdrawSum(UUID u, String t) { return sumByProductAndTxnKind(u, t, "WITHDRAW"); }
 
-    // CacheClearable
     @Override
     public void clearCaches() {
         userOfCache.invalidateAll();
@@ -96,7 +94,6 @@ public class KnowledgeRepositoryImpl implements KnowledgeRepository, CacheCleara
     @Override
     public String name() { return "KnowledgeRepositoryImpl"; }
 
-    // cache keys
     private record UserTypeKey(UUID userId, String productType) {
         UserTypeKey { Objects.requireNonNull(userId); Objects.requireNonNull(productType); }
     }
