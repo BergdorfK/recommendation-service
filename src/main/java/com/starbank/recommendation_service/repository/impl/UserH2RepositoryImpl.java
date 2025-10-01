@@ -1,6 +1,7 @@
-package com.starbank.recommendation_service.repository;
+package com.starbank.recommendation_service.repository.impl;
 
 import com.starbank.recommendation_service.model.UserH2;
+import com.starbank.recommendation_service.repository.UserH2Repository;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
@@ -23,9 +24,8 @@ public class UserH2RepositoryImpl implements UserH2Repository {
         @Override
         public UserH2 mapRow(ResultSet rs, int rowNum) throws SQLException {
             UserH2 u = new UserH2();
-            // подгони имена колонок под свои реальные в H2
-            u.setId(rs.getLong("id"));                   // если есть
-            u.setUserId(rs.getString("user_id"));        // UUID в строке
+            u.setId(rs.getLong("id"));
+            u.setUserId(rs.getString("user_id"));
             u.setUsername(rs.getString("username"));
             u.setFirstName(rs.getString("first_name"));
             u.setLastName(rs.getString("last_name"));

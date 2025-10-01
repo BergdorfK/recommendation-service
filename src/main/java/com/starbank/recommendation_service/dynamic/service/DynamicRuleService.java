@@ -60,16 +60,12 @@ public class DynamicRuleService {
     public boolean deleteByProductId(UUID productId) {
         return repository.findByProductId(productId)
                 .map(dr -> {
-                    repository.delete(dr); // FK ON DELETE CASCADE удалит и статистику
+                    repository.delete(dr);
                     return true;
                 })
                 .orElse(false);
     }
 
-    /**
-     * Оценка динамических правил:
-     * - если правило сработало — добавляем рекомендацию и инкрементируем счётчик.
-     */
     @Transactional
     public List<RecommendationDto> evaluateDynamic(UUID userId) {
         List<RecommendationDto> out = new ArrayList<>();

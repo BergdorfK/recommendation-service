@@ -53,7 +53,6 @@ public final class DynamicRuleMapper {
         }
     }
 
-    /** Если решим генерить UUID на уровне сервиса, а не БД */
     public static void assignIdIfAbsent(DynamicRule e) {
         if (e.getId() == null) e.setId(UUID.randomUUID());
     }

@@ -24,7 +24,6 @@ import java.util.*;
 @EntityScan(basePackages = "com.starbank.recommendation_service.dynamic.model")
 public class DataSourceConfig {
 
-    // ---------- DataSourceProperties (Postgres, RW) ----------
     @Bean
     @Primary
     @ConfigurationProperties("rules.datasource")
@@ -32,23 +31,19 @@ public class DataSourceConfig {
         return new DataSourceProperties();
     }
 
-    // ---------- DataSource (Hikari) ----------
     @Bean(name = "rulesDataSource")
     @Primary
     public DataSource rulesDataSource(
             @Qualifier("rulesDataSourceProperties") DataSourceProperties props
     ) {
-        // именно props.initializeDataSourceBuilder() проставит jdbcUrl из rules.datasource.url
         HikariDataSource ds = props.initializeDataSourceBuilder()
                 .type(HikariDataSource.class)
                 .build();
-        // опционально – настроечки пула
         ds.setPoolName("RulesPool");
         ds.setMaximumPoolSize(10);
         return new LazyConnectionDataSourceProxy(ds);
     }
 
-    // ---------- Liquibase для правил ----------
     @Bean
     public SpringLiquibase rulesLiquibase(
             @Qualifier("rulesDataSource") DataSource dataSource,
@@ -58,7 +53,7 @@ public class DataSourceConfig {
         lb.setDataSource(dataSource);
         lb.setChangeLog(props.getChangeLog());
         if (props.getContexts() != null && !props.getContexts().isEmpty()) {
-            lb.setContexts(String.join(",", props.getContexts())); // <- fix List->String
+            lb.setContexts(String.join(",", props.getContexts()));
         }
         if (props.getLabels() != null && !props.getLabels().isEmpty()) {
             lb.setLabels(String.join(",", props.getLabels()));
@@ -67,7 +62,7 @@ public class DataSourceConfig {
         lb.setDropFirst(props.isDropFirst());
         lb.setDefaultSchema(props.getDefaultSchema());
         lb.setLiquibaseSchema(props.getLiquibaseSchema());
-        lb.setClearCheckSums(props.isClearCheckSums()); // удобно при dev-изменениях changelog'а
+        lb.setClearCheckSums(props.isClearCheckSums());
         lb.setChangeLogParameters(props.getParameters());
         return lb;
     }
@@ -83,11 +78,8 @@ public class DataSourceConfig {
         emf.setJpaVendorAdapter(new HibernateJpaVendorAdapter());
 
         Map<String, Object> jpa = new HashMap<>();
-        // база мигрируется Liquibase – схему JPA не трогаем
         jpa.put("hibernate.hbm2ddl.auto", "none");
-        // диалект postgres
         jpa.put("hibernate.dialect", "org.hibernate.dialect.PostgreSQLDialect");
-        // при желании
         jpa.put("hibernate.show_sql", "false");
         jpa.put("hibernate.format_sql", "false");
 
@@ -102,7 +94,6 @@ public class DataSourceConfig {
         return new JpaTransactionManager(Objects.requireNonNull(emf.getObject()));
     }
 
-    // ---------- Проперти для Liquibase ----------
     @Configuration
     @ConfigurationProperties(prefix = "rules.liquibase")
     public static class RulesLiquibaseProperties {

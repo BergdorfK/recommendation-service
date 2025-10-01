@@ -27,7 +27,6 @@ public class RuleStatsService {
         return repo.allCountsForAllRules();
     }
 
-    // Совместимость, если где-то используется
     @Transactional(readOnly = true)
     public List<RuleStatsView> getAll() {
         return repo.findAllWithRule();

@@ -31,8 +31,8 @@ public class RuleEvaluator {
                 }
                 case "TRANSACTION_SUM_COMPARE" -> {
                     String productType = arg(q, 0);
-                    String txnKind    = arg(q, 1); // DEPOSIT | WITHDRAW
-                    String op         = arg(q, 2); // >, <, =, >=, <=
+                    String txnKind    = arg(q, 1);
+                    String op         = arg(q, 2);
                     int threshold     = Integer.parseInt(arg(q, 3));
                     BigDecimal left   = knowledge.sumByProductAndTxnKind(userId, productType, txnKind);
                     BigDecimal right  = new BigDecimal(threshold);
