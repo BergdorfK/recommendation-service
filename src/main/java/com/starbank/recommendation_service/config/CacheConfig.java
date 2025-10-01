@@ -16,7 +16,6 @@ public class CacheConfig {
 
     public static final String KNOWLEDGE_CACHE = "knowledgeCache";
 
-    /** Spring CacheManager, который нужен контроллеру */
     @Bean
     public CacheManager cacheManager() {
         CaffeineCacheManager manager = new CaffeineCacheManager(KNOWLEDGE_CACHE);
@@ -28,7 +27,6 @@ public class CacheConfig {
         return manager;
     }
 
-    /** Опционально: «сырой» Caffeine Cache, если где-то инжектится напрямую */
     @Bean(name = "knowledgeCacheRaw")
     public Cache<String, Object> knowledgeCacheRaw() {
         return Caffeine.newBuilder()

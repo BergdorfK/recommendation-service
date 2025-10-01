@@ -18,7 +18,6 @@ public class RuleStatsController {
         this.service = service;
     }
 
-    // GET /rule/stats -> { "stats":[{"rule_id":"...","count":"..."}] }
     @GetMapping("/stats")
     public Map<String, Object> stats() {
         List<RuleStatsRepository.ShortView> rows = service.allCountsAllRules();
@@ -34,7 +33,7 @@ public class RuleStatsController {
         @JsonProperty("rule_id")
         private final UUID ruleId;
         @JsonProperty("count")
-        private final String count; // как в примере ТЗ — строкой
+        private final String count;
 
         public StatsItem(UUID ruleId, long count) {
             this.ruleId = ruleId;

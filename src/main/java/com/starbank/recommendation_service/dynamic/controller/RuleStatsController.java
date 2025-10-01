@@ -1,3 +1,5 @@
+package com.starbank.recommendation_service.dynamic.controller;
+
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.starbank.recommendation_service.dynamic.service.RuleStatsService;
 import org.springframework.web.bind.annotation.GetMapping;

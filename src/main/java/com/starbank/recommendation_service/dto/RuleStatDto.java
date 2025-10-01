@@ -12,7 +12,6 @@ public class RuleStatDto {
     @JsonProperty("count")
     private Long count;
 
-    // Конструкторы
     public RuleStatDto() {}
 
     public RuleStatDto(UUID ruleId, Long count) {
@@ -20,7 +19,6 @@ public class RuleStatDto {
         this.count = count;
     }
 
-    // Геттеры и сеттеры
     public UUID getRuleId() {
         return ruleId;
     }
